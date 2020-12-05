@@ -17,11 +17,8 @@ namespace hex::prv {
         bool isReadable() override;
         bool isWritable() override;
 
-        void read(u64 offset, void *buffer, size_t size) override;
-        void write(u64 offset, const void *buffer, size_t size) override;
-
-        void readRaw(u64 offset, void *buffer, size_t size) override;
-        void writeRaw(u64 offset, const void *buffer, size_t size) override;
+        size_t readRaw(u64 offset, void *buffer, size_t size) override;
+        size_t writeRaw(u64 offset, const void *buffer, size_t size) override;
         size_t getActualSize() override;
 
         std::vector<std::pair<std::string, std::string>> getDataInformation() override;

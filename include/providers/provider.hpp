@@ -4,6 +4,8 @@
 
 #include <cmath>
 #include <concepts>
+#include <functional>
+#include <list>
 #include <map>
 #include <optional>
 #include <string>
@@ -25,17 +27,55 @@ namespace hex::prv {
         virtual bool isReadable() = 0;
         virtual bool isWritable() = 0;
 
-        virtual void read(u64 offset, void *buffer, size_t size) { this->readRaw(offset, buffer, size); }
-        virtual void write(u64 offset, const void *buffer, size_t size) { this->writeRaw(offset, buffer, size); }
+        virtual size_t read(u64 offset, void *buffer, size_t size) {
+            size_t readSize = this->readRaw(offset, buffer, size);
 
-        virtual void readRaw(u64 offset, void *buffer, size_t size) = 0;
-        virtual void writeRaw(u64 offset, const void *buffer, size_t size) = 0;
+            if (readSize == 0)
+                return 0;
+
+            for (u64 i = 0; i < readSize; i++) {
+                if (this->m_patches.back().contains(offset + i))
+                    reinterpret_cast<u8*>(buffer)[i] = this->m_patches.back()[offset + i];
+
+                for (const auto &overlay : this->m_overlays) {
+                    auto byte = overlay(offset + i, reinterpret_cast<u8*>(buffer)[i]);
+                    if (byte.has_value())
+                        reinterpret_cast<u8*>(buffer)[i] = byte.value();
+                }
+            }
+
+            return readSize;
+        }
+        virtual size_t write(u64 offset, const void *buffer, size_t size) {
+            size_t writeSize = this->writeRaw(offset, buffer, size);
+
+            if (writeSize == 0)
+                return 0;
+
+            this->m_patches.push_back(this->m_patches.back());
+
+            for (u64 i = 0; i < size; i++)
+                this->m_patches.back()[offset + i] = reinterpret_cast<const u8*>(buffer)[i];
+
+            return writeSize;
+        }
+
+        virtual size_t readRaw(u64 offset, void *buffer, size_t size) = 0;
+        virtual size_t writeRaw(u64 offset, const void *buffer, size_t size) = 0;
         virtual size_t getActualSize() = 0;
 
         std::map<u64, u8>& getPatches() { return this->m_patches.back(); }
         void applyPatches() {
             for (auto &[patchAddress, patch] : this->m_patches.back())
                 this->writeRaw(patchAddress, &patch, 1);
+        }
+
+        auto addOverlay(std::function<std::optional<u8>(u64, u8)> &&function) {
+            return this->m_overlays.insert(this->m_overlays.end(), function);
+        }
+
+        void removeOverlay(std::list<std::function<std::optional<u8>(u64, u8)>>::iterator iterator) {
+            this->m_overlays.erase(iterator);
         }
 
         u32 getPageCount() { return std::ceil(this->getActualSize() / double(PageSize)); }
@@ -65,6 +105,7 @@ namespace hex::prv {
         u32 m_currPage = 0;
 
         std::vector<std::map<u64, u8>> m_patches;
+        std::list<std::function<std::optional<u8>(u64, u8)>> m_overlays;
     };
 
 }

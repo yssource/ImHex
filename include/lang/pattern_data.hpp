@@ -600,12 +600,16 @@ namespace hex::lang {
                     ImGui::TableNextColumn();
                     ImGui::Text("0x%08lx : 0x%08lx", this->getOffset() + (bitOffset >> 3), this->getOffset() + ((bitOffset + entrySize) >> 3) - 1);
                     ImGui::TableNextColumn();
-                    if (entrySize == 1)
+                    if (entrySize == 1) {
                         ImGui::Text("%llu bit", entrySize);
-                    else
+                        ImGui::TableNextColumn();
+                        ImGui::TextColored(ImColor(0xFF9BC64D), "bit");
+                    }
+                    else {
                         ImGui::Text("%llu bits", entrySize);
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%s", entryName.c_str());
+                        ImGui::TableNextColumn();
+                        ImGui::TextColored(ImColor(0xFF9BC64D), "bits");
+                    }
                     ImGui::TableNextColumn();
                     ImGui::Text("%llx", hex::extract((bitOffset + entrySize) - 1, bitOffset, value));
                     bitOffset += entrySize;

@@ -8,6 +8,9 @@
 
 #include <openssl/evp.h>
 
+#include <openssl/rsa.h>
+#include <openssl/aes.h>
+
 #include <array>
 #include <span>
 
@@ -217,7 +220,7 @@ namespace hex {
         return result;
     }
 
-    std::vector<u8> decode64(const std::vector<u8> &input) {
+    std::vector<u8> decodeBase64(const std::vector<u8> &input) {
         size_t outputSize = (3 * input.size()) / 4;
         std::vector<u8> output(outputSize + 1, 0x00);
 
@@ -227,7 +230,7 @@ namespace hex {
         return output;
     }
 
-    std::vector<u8> encode64(const std::vector<u8> &input) {
+    std::vector<u8> encodeBase64(const std::vector<u8> &input) {
         size_t outputSize = 4 * ((input.size() + 2) / 3);
         std::vector<u8> output(outputSize + 1, 0x00);
 

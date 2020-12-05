@@ -22,6 +22,6 @@ namespace hex {
     std::array<u32, 12> sha384(prv::Provider* &data, u64 offset, size_t size);
     std::array<u32, 16> sha512(prv::Provider* &data, u64 offset, size_t size);
 
-    std::vector<u8> decode64(const std::vector<u8> &input);
-    std::vector<u8> encode64(const std::vector<u8> &input);
+    std::vector<u8> decodeBase64(const std::vector<u8> &input);
+    std::vector<u8> encodeBase64(const std::vector<u8> &input);
 }

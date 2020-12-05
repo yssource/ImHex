@@ -13,6 +13,7 @@
 #include "views/view_disassembler.hpp"
 #include "views/view_bookmarks.hpp"
 #include "views/view_patches.hpp"
+#include "views/view_crypto.hpp"
 
 #include "providers/provider.hpp"
 
@@ -37,6 +38,7 @@ int main(int argc, char **argv) {
     window.addView<hex::ViewPatternData>(dataProvider, patternData);
     window.addView<hex::ViewDataInspector>(dataProvider);
     window.addView<hex::ViewHashes>(dataProvider);
+    window.addView<hex::ViewCrypto>(dataProvider);
     window.addView<hex::ViewInformation>(dataProvider);
     window.addView<hex::ViewStrings>(dataProvider);
     window.addView<hex::ViewDisassembler>(dataProvider);
