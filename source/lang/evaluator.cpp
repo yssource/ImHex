@@ -38,15 +38,15 @@ namespace hex::lang {
             PatternData *pattern = nullptr;
             u64 memberSize = 0;
 
-            if (member->getVariableType() == Token::TypeToken::Type::Signed8Bit && member->getArraySize() > 1) {
+            if (member->getVariableType() == Token::ValueType::Signed8Bit && member->getArraySize() > 1) {
                 std::tie(pattern, memberSize) = this->createStringPattern(member, memberOffset);
-            } else if (member->getVariableType() == Token::TypeToken::Type::CustomType
-                && typeDeclNode != nullptr && typeDeclNode->getAssignedType() == Token::TypeToken::Type::Signed8Bit
+            } else if (member->getVariableType() == Token::ValueType::CustomType
+                && typeDeclNode != nullptr && typeDeclNode->getAssignedType() == Token::ValueType::Signed8Bit
                 && member->getArraySize() > 1) {
 
                 std::tie(pattern, memberSize) = this->createStringPattern(member, memberOffset);
             }
-            else if (member->getArraySize() > 1 || member->getVariableType() == Token::TypeToken::Type::Padding) {
+            else if (member->getArraySize() > 1 || member->getVariableType() == Token::ValueType::Padding) {
                 std::tie(pattern, memberSize) = this->createArrayPattern(member, memberOffset);
             }
             else if (member->getArraySizeVariable().has_value()) {
@@ -76,7 +76,7 @@ namespace hex::lang {
 
                 std::tie(pattern, memberSize) = this->createArrayPattern(processedMember, memberOffset);
             }
-            else if (member->getVariableType() != Token::TypeToken::Type::CustomType) {
+            else if (member->getVariableType() != Token::ValueType::CustomType) {
                 std::tie(pattern, memberSize) = this->createBuiltInTypePattern(member, memberOffset);
             }
             else {
@@ -130,17 +130,17 @@ namespace hex::lang {
             PatternData *pattern = nullptr;
             u64 memberSize = 0;
 
-            if (member->getVariableType() == Token::TypeToken::Type::Signed8Bit && member->getArraySize() > 1) {
+            if (member->getVariableType() == Token::ValueType::Signed8Bit && member->getArraySize() > 1) {
                 std::tie(pattern, memberSize) = this->createStringPattern(member, memberOffset);
 
-            } else if (member->getVariableType() == Token::TypeToken::Type::CustomType
-                       && typeDeclNode != nullptr && typeDeclNode->getAssignedType() == Token::TypeToken::Type::Signed8Bit
+            } else if (member->getVariableType() == Token::ValueType::CustomType
+                       && typeDeclNode != nullptr && typeDeclNode->getAssignedType() == Token::ValueType::Signed8Bit
                        && member->getArraySize() > 1) {
 
                 std::tie(pattern, memberSize) = this->createStringPattern(member, memberOffset);
 
             }
-            else if (member->getArraySize() > 1 || member->getVariableType() == Token::TypeToken::Type::Padding) {
+            else if (member->getArraySize() > 1 || member->getVariableType() == Token::ValueType::Padding) {
                 std::tie(pattern, memberSize) = this->createArrayPattern(member, memberOffset);
 
             }
@@ -171,7 +171,7 @@ namespace hex::lang {
 
                 std::tie(pattern, memberSize) = this->createArrayPattern(processedMember, memberOffset);
             }
-            else if (member->getVariableType() != Token::TypeToken::Type::CustomType) {
+            else if (member->getVariableType() != Token::ValueType::CustomType) {
                 std::tie(pattern, memberSize) = this->createBuiltInTypePattern(member, memberOffset);
             }
             else {
@@ -236,9 +236,9 @@ namespace hex::lang {
             ASTNodeVariableDecl *nonArrayVarDeclNode = new ASTNodeVariableDecl(varDeclNode->getLineNumber(), varDeclNode->getVariableType(), "[" + std::to_string(i) + "]", varDeclNode->getCustomVariableTypeName(), varDeclNode->getOffset(), 1);
 
 
-            if (varDeclNode->getVariableType() == Token::TypeToken::Type::Padding) {
+            if (varDeclNode->getVariableType() == Token::ValueType::Padding) {
                 return { new PatternDataPadding(offset, varDeclNode->getArraySize()), varDeclNode->getArraySize() };
-            } else if (varDeclNode->getVariableType() != Token::TypeToken::Type::CustomType) {
+            } else if (varDeclNode->getVariableType() != Token::ValueType::CustomType) {
                 const auto& [pattern, size] = this->createBuiltInTypePattern(nonArrayVarDeclNode, offset + arrayOffset);
 
                 if (pattern == nullptr) {
@@ -312,7 +312,7 @@ namespace hex::lang {
 
     std::pair<PatternData*, size_t> Evaluator::createBuiltInTypePattern(ASTNodeVariableDecl *varDeclNode, u64 offset) {
         auto type = varDeclNode->getVariableType();
-        if (type == Token::TypeToken::Type::CustomType) {
+        if (type == Token::ValueType::CustomType) {
             const auto &currType =  static_cast<ASTNodeTypeDecl*>(this->m_types[varDeclNode->getCustomVariableTypeName()]);
             if (currType == nullptr) {
                 this->m_error = { varDeclNode->getLineNumber(), hex::format("'%s' does not name a type", varDeclNode->getCustomVariableTypeName().c_str()) };
@@ -381,7 +381,7 @@ namespace hex::lang {
                 {
                     auto *typeDeclNode = static_cast<ASTNodeTypeDecl*>(node);
 
-                    if (typeDeclNode->getAssignedType() == Token::TypeToken::Type::CustomType)
+                    if (typeDeclNode->getAssignedType() == Token::ValueType::CustomType)
                         this->m_types.emplace(typeDeclNode->getTypeName(), this->m_types[typeDeclNode->getAssignedCustomTypeName()]);
                     else
                         this->m_types.emplace(typeDeclNode->getTypeName(), typeDeclNode);
@@ -401,7 +401,7 @@ namespace hex::lang {
 
             auto *varDeclNode = static_cast<ASTNodeVariableDecl*>(node);
 
-            if (varDeclNode->getVariableType() == Token::TypeToken::Type::Signed8Bit && varDeclNode->getArraySize() > 1) {
+            if (varDeclNode->getVariableType() == Token::ValueType::Signed8Bit && varDeclNode->getArraySize() > 1) {
                 const auto &[pattern, _] = createStringPattern(varDeclNode, varDeclNode->getOffset().value());
                 variables.push_back(pattern);
             }
@@ -409,7 +409,7 @@ namespace hex::lang {
                 const auto &[pattern, _] = this->createArrayPattern(varDeclNode, varDeclNode->getOffset().value());
                 variables.push_back(pattern);
 
-            } else if (varDeclNode->getVariableType() != Token::TypeToken::Type::CustomType) {
+            } else if (varDeclNode->getVariableType() != Token::ValueType::CustomType) {
                 const auto &[pattern, _] = this->createBuiltInTypePattern(varDeclNode, varDeclNode->getOffset().value());
                 variables.push_back(pattern);
             } else {

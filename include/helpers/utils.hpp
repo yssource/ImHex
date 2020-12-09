@@ -43,19 +43,19 @@ namespace hex {
         return (((value ^ mask) - mask) << (64 - targetWidth)) >> (64 - targetWidth);
     }
 
-    [[nodiscard]] constexpr inline bool isUnsigned(const lang::Token::TypeToken::Type type) {
+    [[nodiscard]] constexpr inline bool isUnsigned(const lang::Token::ValueType type) {
         return (static_cast<u32>(type) & 0x0F) == 0x00;
     }
 
-    [[nodiscard]] constexpr inline bool isSigned(const lang::Token::TypeToken::Type type) {
+    [[nodiscard]] constexpr inline bool isSigned(const lang::Token::ValueType type) {
         return (static_cast<u32>(type) & 0x0F) == 0x01;
     }
 
-    [[nodiscard]] constexpr inline bool isFloatingPoint(const lang::Token::TypeToken::Type type) {
+    [[nodiscard]] constexpr inline bool isFloatingPoint(const lang::Token::ValueType type) {
         return (static_cast<u32>(type) & 0x0F) == 0x02;
     }
 
-    [[nodiscard]] constexpr inline u32 getTypeSize(const lang::Token::TypeToken::Type type) {
+    [[nodiscard]] constexpr inline u32 getTypeSize(const lang::Token::ValueType type) {
         return static_cast<u32>(type) >> 4;
     }
 
@@ -101,6 +101,7 @@ namespace hex {
 
     std::vector<u8> readFile(std::string_view path);
 
+    #define SCOPE_EXIT(func) ScopeExit scopeGuard##__COUNTER__([&] { func })
     class ScopeExit {
     public:
         ScopeExit(std::function<void()> func) : m_func(func) {}
